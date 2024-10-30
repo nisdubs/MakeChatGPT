@@ -1,38 +1,52 @@
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    env:
-      - 'DOCKER_BUILDKIT=1'
     args:
-      - build
+      - 'build'
       - '--no-cache'
       - '-t'
-      - $_AR_HOSTNAME/$_PROJECT_ID/cloud-run-source-deploy:$_SERVICE_NAME
+      - 'us-central1-docker.pkg.dev/nisdubs/makechatgpt/makechatgpt-image'
       - '-f'
-      - Dockerfile
-      - .
+      - 'Dockerfile'
+      - '.'
+    env:
+      - 'DOCKER_BUILDKIT=1'
     id: Build
+
   - name: 'gcr.io/cloud-builders/docker'
     args:
-      - push
-      - $_AR_HOSTNAME/$_PROJECT_ID/cloud-run-source-deploy:$_SERVICE_NAME
+      - 'push'
+      - 'us-central1-docker.pkg.dev/nisdubs/makechatgpt/makechatgpt-image'
     id: Push
+
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
     args:
-      - run
-      - services
-      - update
-      - $_SERVICE_NAME
+      - 'run'
+      - 'services'
+      - 'update'
+      - 'makechatgpt'
       - '--platform=managed'
-      - '--image=$_AR_HOSTNAME/$_PROJECT_ID/cloud-run-source-deploy:$_SERVICE_NAME'
-      - '--region=$_DEPLOY_REGION'
+      - '--region=us-central1'
+      - '--image=us-central1-docker.pkg.dev/nisdubs/makechatgpt/makechatgpt-image'
+      - '--quiet'
     id: Deploy
+
+images:
+  - 'us-central1-docker.pkg.dev/nisdubs/makechatgpt/makechatgpt-image'
+
 options:
   substitutionOption: ALLOW_LOOSE
   logging: CLOUD_LOGGING_ONLY
+
 substitutions:
-  _TRIGGER_ID: '8a1cfdb-d6e6-4570-a16a-825e12c024a9'
+  _TRIGGER_ID: '8a1cfcdb-d6e6-4570-a16a-825e12c024a9'
   _REPO_NAME: 'makechatgpt'
   _DEPLOY_REGION: 'us-central1'
   _AR_HOSTNAME: 'us-central1-docker.pkg.dev'
   _PLATFORM: 'managed'
   _SERVICE_NAME: 'makechatgpt'
+
+tags:
+  - 'gcp-cloud-build-deploy-cloud-run'
+  - 'gcp-cloud-build-deploy-cloud-run-managed'
+  - 'makechatgpt'
