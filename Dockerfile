@@ -1,13 +1,15 @@
-# syntax=docker/dockerfile:1
+# Start with a base image
 FROM python:3.10-slim-buster
 
+# Set the working directory
 WORKDIR /app
 
-COPY requirements.txt ./
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install -r requirements.txt --no-cache-dir
+# Copy the requirements file and install dependencies
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
+# Copy the application files
 COPY . .
 
-EXPOSE 8000
-CMD [ "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000" ]
+# Set the default command to start the app on port 8080
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
