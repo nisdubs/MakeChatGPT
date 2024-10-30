@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 
 import json
+import uvicorn  # Import uvicorn to run the app
 
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,7 +11,6 @@ from deps import get_token
 from utils import generate_lyrics, generate_music, get_feed, get_lyrics, get_credits
 
 app = FastAPI()
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -101,3 +101,8 @@ async def fetch_credits(token: str = Depends(get_token)):
         raise HTTPException(
             detail=str(e), status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
+
+# Add the Uvicorn entry point to run the app on 0.0.0.0:8080
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=8080)
